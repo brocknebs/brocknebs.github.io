@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Simple Wordle</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #121213;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .game {
+    text-align: center;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-rows: repeat(6, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .tile {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #3a3a3c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  .correct { background: #538d4e; border-color: #538d4e; }
+  .present { background: #b59f3b; border-color: #b59f3b; }
+  .absent  { background: #3a3a3c; border-color: #3a3a3c; }
+
+  input {
+    padding: 8px;
+    font-size: 1rem;
+    width: 160px;
+    text-transform: uppercase;
+  }
+
+  button {
+    padding: 8px 12px;
+    margin-left: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .message {
+    margin-top: 12px;
+    height: 1.2em;
+  }
+</style>
+</head>
+<body>
+
+<div class="game">
+  <h1>Wordle</h1>
+
+  <div class="grid" id="grid"></div>
+
+  <div>
+    <input id="guessInput" maxlength="5" placeholder="Enter guess">
+    <button onclick="submitGuess()">Guess</button>
+  </div>
+
+  <div class="message" id="message"></div>
+</div>
+
+<script>
+  const WORDS = ["apple", "grape", "plane", "brick", "chair"];
+  const answer = WORDS[Math.floor(Math.random() * WORDS.length)];
+  let currentRow = 0;
+
+  const grid = document.getElementById("grid");
+  const message = document.getElementById("message");
+
+  // Create grid
+  for (let r = 0; r < 6; r++) {
+    const row = document.createElement("div");
+    row.className = "row";
+    for (let c = 0; c < 5; c++) {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      row.appendChild(tile);
+    }
+    grid.appendChild(row);
+  }
+
+  function submitGuess() {
+    const input = document.getElementById("guessInput");
+    const guess = input.value.toLowerCase();
+
+    if (guess.length !== 5) {
+      message.textContent = "Guess must be 5 letters.";
+      return;
+    }
+
+    if (currentRow >= 6) return;
+
+    const rowTiles = grid.children[currentRow].children;
+
+    for (let i = 0; i < 5; i++) {
+      rowTiles[i].textContent = guess[i];
+
+      if (guess[i] === answer[i]) {
+        rowTiles[i].classList.add("correct");
+      } else if (answer.includes(guess[i])) {
+        rowTiles[i].classList.add("present");
+      } else {
+        rowTiles[i].classList.add("absent");
+      }
+    }
+
+    if (guess === answer) {
+      message.textContent = "You win!";
+      input.disabled = true;
+      return;
+    }
+
+    currentRow++;
+    input.value = "";
+
+    if (currentRow === 6) {
+      message.textContent = `Game over. Word was "${answer.toUpperCase()}".`;
+      input.disabled = true;
+    }
+  }
+</script>
+
+</body>
+</html>
